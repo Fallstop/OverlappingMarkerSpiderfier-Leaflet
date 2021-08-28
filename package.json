@@ -17,16 +17,18 @@
     "type": "git",
     "url": "https://github.com/dwiyatci/OverlappingMarkerSpiderfier-Leaflet.git"
   },
-  "devDependencies": {
-    "coffee-script": "1.12.7",
-    "lodash": "4.17.11",
-    "rollup": "1.15.1",
-    "rollup-plugin-coffee-script": "1.1.0",
-    "rollup-plugin-uglify": "6.0.2"
-  },
   "scripts": {
     "install:clean": "yarn upgrade || yarn install",
     "update": "yarn upgrade-interactive --latest",
     "build": "rollup --config"
+  },
+  "dependencies": {
+    "@rollup/plugin-typescript": "8.2.5",
+    "leaflet": "1.7.1",
+    "lodash": "4.17.21",
+    "rollup": "2.56.3",
+    "rollup-plugin-uglify": "6.0.4",
+    "tslib": "2.3.1",
+    "typescript": "4.4.2"
   }
 }

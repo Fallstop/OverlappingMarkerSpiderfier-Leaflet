@@ -1,20 +1,19 @@
-import coffee from 'rollup-plugin-coffee-script';
+import typescript from '@rollup/plugin-typescript';
 import { uglify } from 'rollup-plugin-uglify';
 import _ from 'lodash';
 
 import pkg from './package.json';
 
 const baseConfig = {
-  input: 'lib/oms.coffee',
+  input: 'src/oms.ts',
   output: {
     file: 'build/oms.js',
-    format: 'iife',
+    format: 'cjs',
     name: 'OverlappingMarkerSpiderfier'
   },
   plugins: [
-    coffee()
-  ],
-  context: 'window'
+    typescript({lib: ["es5", "es6"], target: "es5"})
+  ]
 };
 
 export default [
