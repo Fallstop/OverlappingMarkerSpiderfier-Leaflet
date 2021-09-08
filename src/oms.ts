@@ -4,6 +4,8 @@ Copyright (c) 2011 - 2012 George MacKerron
 Released under the MIT licence: http://opensource.org/licenses/mit-license
 */
 
+import { Map as LeafletMap, MapOptions, Marker, MarkerOptions } from "leaflet";
+
 /*
 	Somehow ported to kinda Typescript after 9 years, how,
 	I don't know, but don't touch it... it might explode.
@@ -12,25 +14,9 @@ Released under the MIT licence: http://opensource.org/licenses/mit-license
 	global this object and therefore can be jankly included
 	into svelte projects.
 
-	- Jasper M-W, 2021, I never want to see this code again.
+	- Jasper M-W, ported for use in a svelte project in 2021.
 */
 
-
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS202: Simplify dynamic range loops
- * DS203: Remove `|| {}` from converted for-own loops
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * DS208: Avoid top-level this
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-
-
-import type { Marker } from "leaflet";
 
 let twoPi = Math.PI * 2;
 export default class OverlappingMarkerSpiderfier {
@@ -56,11 +42,11 @@ export default class OverlappingMarkerSpiderfier {
 
 	public markers: Marker[];
 	public markerListeners;
-	public listeners;
-	public map;
-	public spiderfied;
-	private unspiderfying;
-	private spiderfying;
+	public listeners: Map<string,(()=>void)[]> = new Map();
+	public map: LeafletMap;
+	public spiderfied: boolean;
+	private unspiderfying: boolean;
+	private spiderfying: boolean;
 
 	private leaflet;
 	
@@ -105,12 +91,12 @@ export default class OverlappingMarkerSpiderfier {
 	};
 
 	// available listeners: click(marker), spiderfy(markers), unspiderfy(markers)
-	public addListener(event, func) {
+	public addListener(event, func: ()=>void) {
 		(this.listeners[event] != null ? this.listeners[event] : (this.listeners[event] = [])).push(func);
 		return this;  // return self, for chaining
 	};
 
-	public removeListener(event, func) {
+	public removeListener(event, func: ()=>void) {
 		const i = this.arrIndexOf(this.listeners[event], func);
 		if (!(i < 0)) { this.listeners[event].splice(i, 1); }
 		return this;  // return self, for chaining
@@ -121,8 +107,8 @@ export default class OverlappingMarkerSpiderfier {
 		return this;  // return self, for chaining
 	};
 
-	public trigger(event,...args) {
-		return (Array.from(this.listeners[event] != null ? this.listeners[event] : [])).map((func: CallableFunction) => func(...Array.from(args || [])));
+	public trigger(event: string,...args) {
+		return (Array.from(this.listeners[event] != null ? this.listeners[event] : [])).map((func: ()=>void) => func(...Array.from(args || [])));
 	};
 
 	public generatePtsCircle(count,centerPt) {
@@ -310,7 +296,6 @@ export default class OverlappingMarkerSpiderfier {
 		if (opts == null) { opts = { }; }
 		for (let k of Object.keys(opts || { })) { const v = opts[k]; this[k] = v; }
 		this.initMarkerArrays();
-		this.listeners = { };
-		for (let e of ['click', 'zoomend']) { this.map.addEventListener(e, () => this['unspiderfy']()); }
+		for (let e of ['click', 'zoomend']) { this.map.addEventListener(e, () => this.unspiderfy()); }
 	}
 };
